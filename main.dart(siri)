@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+import 'package:bookhub/login_page.dart';
+import 'package:bookhub/sign_up_page.dart'; // Import the SignupPage
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Book Hub',
+      theme: ThemeData(
+        primaryColor: Colors.black, // Primary color
+        colorScheme: ColorScheme.light(
+          primary: Colors.white, // Primary color
+          secondary: Colors.blueAccent, // Secondary color
+          surface: Colors.white, // Surface color
+        ),
+        scaffoldBackgroundColor: Colors.grey[50], // Scaffold background color
+      ),
+      home: LoginPage(),
+    );
+  }
+}
