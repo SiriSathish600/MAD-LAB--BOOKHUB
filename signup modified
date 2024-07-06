@@ -1,0 +1,145 @@
+import 'package:bookhub/login_page.dart';
+import 'package:flutter/material.dart';
+import 'cart.dart';
+
+class SignupPage extends StatefulWidget {
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Sign up',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        elevation: 0.0, // Remove the app bar shadow
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Take up only the space needed
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(fontSize: 16.0),
+                    border: OutlineInputBorder(),
+                    hoverColor: Colors.black.withOpacity(0.2),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(fontSize: 16.0),
+                    border: OutlineInputBorder(),
+                    hoverColor: Colors.black.withOpacity(0.2),
+                  ),
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        !value.contains('@')) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(fontSize: 16.0),
+                    border: OutlineInputBorder(),
+                    hoverColor: Colors.black.withOpacity(0.2),
+                  ),
+                  obscureText: true, // Hide the password input
+                  validator: (value) {
+                    if (value == null || value.length < 8) {
+                      return 'Please enter a password with at least 8 characters';
+                    }
+                    String pattern = r'^(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+                    RegExp regex = RegExp(pattern);
+                    if (!regex.hasMatch(value)) {
+                      return 'Please enter a password with at least one number and one special character';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 24.0),
+                Container(
+                  width: double.infinity, // Set the width to infinity
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _signup,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    child: _isLoading
+                        ? CircularProgressIndicator()
+                        : Text('Sign up'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _signup() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        // Add signup functionality here
+        // After successful signup, navigate to the Cart page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CartPage()),
+        );
+      } catch (e) {
+        // Handle errors that might occur during the signup process
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+}
