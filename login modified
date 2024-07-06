@@ -1,0 +1,146 @@
+import 'package:bookhub/cart.dart';
+import 'package:flutter/material.dart';
+import 'sign_up_page.dart'; // Import the Signup page
+
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Login',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        elevation: 0.0, // Remove the app bar shadow
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Take up only the space needed
+              children: [
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(fontSize: 16.0),
+                    border: OutlineInputBorder(),
+                    hoverColor: Colors.black.withOpacity(0.2),
+                  ),
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        !value.contains('@')) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(fontSize: 16.0),
+                    border: OutlineInputBorder(),
+                    hoverColor: Colors.black.withOpacity(0.2),
+                  ),
+                  obscureText: true, // Hide the password input
+                  validator: (value) {
+                    if (value == null || value.length < 8) {
+                      return 'Please enter a password with at least 8 characters';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 24.0),
+                Container(
+                  width: double.infinity, // Set the width to infinity
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    child: _isLoading
+                        ? CircularProgressIndicator()
+                        : Text('Login'),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Container(
+                  width: double.infinity, // Set the width to infinity
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Navigate to the Signup page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    child: Text('New User? Sign up here'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        // Add login functionality here
+        // After successful login, navigate to the Cart page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CartPage()),
+        );
+      } catch (e) {
+        // Handle errors that might occur during the login process
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+}
