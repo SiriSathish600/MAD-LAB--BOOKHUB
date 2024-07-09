@@ -1,0 +1,223 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class ChatPage extends StatefulWidget {
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final List<Chat> _chats = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getChats();
+  }
+
+  void _getChats() async {
+    final chatsSnapshot = await _firestore.collection('chats').get();
+    setState(() {
+      _chats = chatsSnapshot.docs.map((doc) => Chat.fromMap(doc.data())).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Chat Page'),
+      ),
+      body: ListView.builder(
+        itemCount: _chats.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_chats[index].name),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatDetailPage(_chats[index]),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class Chat {
+  final String id;
+  final String name;
+
+  Chat({required this.id, required this.name});
+
+  factory Chat.fromMap(Map<String, dynamic> map) {
+    return Chat(id: map['id'], name: map['name']);
+  }
+}
+
+class ChatDetailPage extends StatefulWidget {
+  final Chat _chat;
+
+  ChatDetailPage(this._chat);
+
+  @override
+  _ChatDetailPageState createState() => _ChatDetailPageState();
+}
+
+class _ChatDetailPageState extends State<ChatDetailPage> {
+  final TextEditingController _messageController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final List<Message> _messages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getMessages();
+  }
+
+  void _getMessages() async {
+    final messagesSnapshot = await _firestore
+        .collection('chats')
+        .doc(widget._chat.id)
+        .collection('messages')
+        .get();
+    setState(() {
+      _messages = messagesSnapshot.docs.map((doc) => Message.fromMap(doc.data())).toList();
+    });
+  }
+
+  void _sendMessage() async {
+    final message = Message(
+      text: _messageController.text,
+      senderId: 'user1', // replace with actual user id
+      receiverId: 'user2', // replace with actual user id
+    );
+    await _firestore
+        .collection('chats')
+        .doc(widget._chat.id)
+        .collection('messages')
+        .add(message.toMap());
+    _messageController.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget._chat.name),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_messages[index].text),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Type a message...',
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _sendMessage,
+                  child: Text('Send'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Message {
+  final String text;
+  final String senderId;
+  final String receiverId;
+
+  Message({required this.text, required this.senderId, required this.receiverId});
+
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      text: map['text'],
+      senderId: map['senderId'],
+      receiverId: map['receiverId'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'text': text,
+      'senderId': senderId,
+      'receiverId': receiverId,
+    };
+  }
+}
+
+yaml:
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cloud_firestore: ^2.3.0
+  firebase_core: ^1.10.0
+
+
+inside firebase.dart
+import 'package:firebase_core/firebase_core.dart';
+
+Future<void> main() async {
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: 'YOUR_API_KEY',
+      appId: 'YOUR_APP_ID',
+      messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+      projectId: 'YOUR_PROJECT_ID',
+    ),
+  );
+}
+
+main.dart
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:your_app_name/chat_page.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Your App Name',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: ChatPage(),
+    );
+  }
+}
